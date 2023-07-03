@@ -5,15 +5,16 @@ class Order:
         self.dish_ids = dish_ids
         self.status = status    
 
-def menuItem(name, id, price, stock):
+def menuItem(name, id, price, availibility):
     obj = {}
     obj["name"] = name
     obj["id"] = id
     obj["price"] = price
-    obj["stock"] = stock
+    obj["availability"] = availibility
     return obj
 
-class Zomato:
+
+class Staf:
     def __init__(self):
        self.menu=[]
        self.orders=[]
@@ -21,39 +22,38 @@ class Zomato:
 
     def addDish(self, dish):
         self.menu.append(dish)
-        print(f"Dish '{dish['name']}' added to Inventory.")
+        print(f"Dish '{dish['name']}' has been added to the menu.")
 
     def removeDish(self, id):
-        for i in self.menu:
-            if i['id'] == id:
-                self.menu.remove(i)
-                print(f"Dish '{i['name']}' has been removed from Inventory.")
+        for dish in self.menu:
+            if dish['id'] == id:
+                self.menu.remove(dish)
+                print(f"Dish '{dish['name']}' has been removed from the menu.")
                 return
         print("Dish not found in the menu.")
 
-    def updateStock(self, id, stock):
-        for i in self.menu:
-            if i['id'] == id:
-                i['stock'] = stock
-                print(f"Dish '{i['name']}' Stock's has been updated")
+    def updateAvailibilty(self, id, avail):
+        for d in self.menu:
+            if d['id'] == id:
+                d['availability'] = avail
+                print(f"Dish '{d['name']}' availability has been updated.")
                 return
-        print("Dish not found in Inventory.")
+        print("Dish not found in the menu.")
 
-    def takeOrder(self, cName, dish_id,quantity):
+    def takeOrder(self, cName, dish_ids):
         dishes = []
-        for id in dish_id:
+        for id in dish_ids:
             found = False
             for dish in self.menu:
                 if dish['id'] == id:
                     found = True
-                    if dish['stock'] >= quantity:
-                        dish['stock'] -=quantity
+                    if dish['availability'] == 'yes':
                         dishes.append(dish)
                     else:
-                        print(f"Dish '{dish['name']}' is currently out of Stock.")
+                        print(f"Dish '{dish['name']}' is not available.")
                     break
             if not found:
-                print(f"Dish with ID '{id}' not found in Inventory")
+                print(f"Dish with ID '{id}' not found in the menu.")
 
         if dishes:
             order_id = self.next_order_id
@@ -79,60 +79,58 @@ class Zomato:
             print("No orders found.")
 
 def print_menu():
-    print("\n====Restaurant Menu====")
-    for dish in zomato.menu:
-        print(f"Dish ID: {dish['id']}, Name: {dish['name']}, Price: {dish['price']}, Stock: {dish['stock']}")
+    print("\nMenu:")
+    for dish in Zomato.menu:
+        print(f"Dish ID: {dish['id']}, Name: {dish['name']}, Price: {dish['price']}, Availability: {dish['availability']}")
 
 def print_options():
-    print("\n=====Zomato Restaurant Management=====")
+    print("\n====Zomato Restaurant====:")
     print("1. Add dish to the menu")
     print("2. Remove dish from the menu")
-    print("3. Update Stock of item")
+    print("3. Update dish availability")
     print("4. Recieve new order:")
     print("5. Update order status")
     print("6. Review all orders")
     print("7. View Menu")
-    print("8. Exit")
+    print("8. Closing Restaurant")
 
-# create an instance of zomato = Zomato()
-zomato = Zomato()
-# main program loop
+Zomato = Staf()
 while True:
     print_options()
     choice = input("Enter your choice: ")
     if choice == "1":
         dish_id = input("Enter dish ID: ")
-        dish_name = input("Enter dish name: ")
-        price = float(input("Enter dish price: "))
-        stock = input("Enter dish Stock: ")
-        dish = menuItem(dish_name, dish_id, price, stock)
-        zomato.addDish(dish)
+        dish_name = input("Enter dish Name: ")
+        price = float(input("Enter dish Price: "))
+        availability = input("Enter dish Availability (yes/no): ")
+        dish = menuItem(dish_name, dish_id, price, availability)
+        Zomato.addDish(dish)
 
     elif choice == "2":
         dish_id = input("Enter dish ID to remove: ")
-        zomato.removeDish(dish_id)
+        Zomato.removeDish(dish_id)
     elif choice == "3":
-        dish_id = input("Enter dish ID to update Stocks: ")
-        stock= input("Enter dish Stocks: ")
-        zomato.updateStock(dish_id, stock)
+        dish_id = input("Enter dish ID to update availability: ")
+        availability = input("Enter dish availability (yes/no): ")
+        Zomato.updateAvailibilty(dish_id, availability)
 
     elif choice == "4":
-        customer_name = input("Enter customer name: ")
-        quantity = input("Enter Dish Quantity: ")
+        customer_name = input("Enter Customer Name: ")
         dish_ids = input("Enter dish IDs (comma-separated): ").split(",")
-        zomato.takeOrder(customer_name, dish_ids,quantity)
+        Zomato.takeOrder(customer_name, dish_ids)
 
     elif choice == "5":
         order_id = input("Enter order ID to update status: ")
-        status = input("Enter new status: ")
-        zomato.update_order_status(order_id, status)
+        status = input("Enter new Status: ")
+        Zomato.update_order_status(order_id, status)
 
     elif choice == "6":
-        zomato.review_orders()
+        Zomato.review_orders()
     elif choice == "7":
         print_menu()
+
     elif choice == "8":
-        print("Exiting...")
+        print("Time to Close the Restaurant, See you again")
         break
 
     else:
