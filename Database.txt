@@ -1,0 +1,243 @@
+====================== DATABASE QUERY=========================
+
+
+1. CREATE TABLE Customers (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(250),
+  email VARCHAR(250),
+  address VARCHAR(250),
+  phone_number VARCHAR(10)
+);
+
+1. db.createCollection("Customers")
+
+2. INSERT INTO Customers (name, email, address, phone_number)
+VALUES
+  ('Kuldeep', 'kuldeep@gmail.com', 'Bhojpur', '1234567890'),
+  ('Suman', 'suman@example.com', 'Agra', '1234567890'),
+  ('Harsh', 'harsh@example.com', 'Delhi', '1234567890'),
+  ('Tejas', 'tejas@example.com', 'Goa', '1234567890'),
+  ('Shubham', 'shubham@example.com', 'London', '1234567890');
+
+2. db.Customers.insertMany([
+  { name: 'Kuldeep', email: 'kuldeep@gmail.com', address: 'Bhojpur', phone_number: '1234567890' },
+  { name: 'Suman', email: 'suman@example.com', address: 'Agra', phone_number: '1234567890' },
+  { name: 'Harsh', email: 'harsh@example.com', address: 'Delhi', phone_number: '1234567890' },
+  { name: 'Tejas', email: 'tejas@example.com', address: 'Goa', phone_number: '1234567890' },
+  { name: 'Shubham', email: 'shubham@example.com', address: 'London', phone_number: '1234567890' }
+]);
+
+3.SELECT * FROM Customers;
+3.db.Customers.find();
+
+4.SELECT name, email FROM Customers;
+4.db.Customers.find({ }, { name: 1, email: 1, _id: 0 });
+
+5.SELECT * FROM Customers WHERE id = 3;
+5.db.Customers.findOne({ id: 3 });
+
+6.SELECT * FROM Customers WHERE name LIKE 'A%';
+6.db.Customers.find({ name: /^A/ });
+
+7.SELECT * FROM Customers ORDER BY name DESC;
+7.db.Customers.find({}).sort({ name: -1 });
+
+8.UPDATE Customers SET address = 'New _Address' WHERE id = 4;
+8.db.Customers.updateOne({ id: 4 }, { $set: { address: 'New_Address' } });
+
+9.SELECT * FROM Customers ORDER BY id ASC LIMIT 3;
+9.db.Customers.find({}).sort({ id: 1 }).limit(3);
+
+10.DELETE FROM Customers WHERE id = 2;
+10.db.Customers.deleteOne({ id: 2 });
+
+11.SELECT COUNT(*) FROM Customers;
+11.db.Customers.countDocuments({});
+
+12.SELECT * FROM Customers ORDER BY id ASC LIMIT 2,999999;
+12.db.Customers.find({}).sort({ id: 1 }).skip(2);
+
+13.SELECT * FROM Customers WHERE id > 2 AND name LIKE 'B%';
+13.db.Customers.find({ id: { $gt: 2 }, name: /^B/ });
+
+14.SELECT * FROM Customers WHERE id < 3 OR name LIKE '%s';
+14.db.Customers.find({ $or: [{ id: { $lt: 3 } }, { name: /s$/ }] });
+
+15.SELECT * FROM Customers WHERE phone_number IS NULL OR phone_number = '';
+15.db.Customers.find({ $or: [{ phone_number: null }, { phone_number: '' }] });
+
+16.CREATE TABLE Restaurants (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    cuisine_type VARCHAR(100),
+    location VARCHAR(255),
+    average_rating FLOAT,
+    delivery_available BOOLEAN
+);
+16.db.createCollection("Restaurants")
+
+17.INSERT INTO Restaurants (id, name, cuisine_type, location, average_rating, delivery_available)
+VALUES
+  (1, 'Rest1', 'Italian', 'Italy', 4.3, true),
+  (2, 'Rest2', 'Indian', 'Delhi', 5.0, true),
+  (3, 'Rest3', 'Chinese', 'Chii-pin', 0.9, true),
+  (4, 'Rest4', 'Italian', 'Italy', 4.8, false),
+  (5, 'Rest5', 'Japanese', 'Tokyo', 3.1, true);
+
+17.db.Restaurants.insertMany([
+  {
+    "name": "Res1",
+    "cuisine_type": "Italian",
+    "location": "Italy",
+    "average_rating": 4.5,
+    "delivery_available": true
+  },
+  {
+    "name": "Res2",
+    "cuisine_type": "Indian",
+    "location": "Delhi",
+    "average_rating": 5.0,
+    "delivery_available": true
+  },
+  {
+    "name": "Res3",
+    "cuisine_type": "Chinese",
+    "location": "chii-pin",
+    "average_rating": 0.9,
+    "delivery_available": true
+  },
+  {
+    "name": "Res4",
+    "cuisine_type": "Italian",
+    "location": "Italy",
+    "average_rating": 4.7,
+    "delivery_available": true
+  },
+  {
+    "name": "Res5",
+    "cuisine_type": "Japanese",
+    "location": "Tokyo",
+    "average_rating": 4.1,
+    "delivery_available": true
+  }
+]);
+
+18.db.Restaurants.find({}).sort({ average_rating: -1 });
+18.SELECT * FROM Restaurants ORDER BY average_rating DESC;
+
+19.db.Restaurants.find({ delivery_available: true, average_rating: { $gt: 4 } });
+19.SELECT * FROM Restaurants WHERE delivery_available = true AND average_rating > 4;
+
+20.db.Restaurants.find({ cuisine_type: { $exists: false } });
+20.SELECT * FROM Restaurants WHERE cuisine_type IS NULL;
+
+21.db.Restaurants.countDocuments({ delivery_available: true });
+21.SELECT COUNT(*) FROM Restaurants WHERE delivery_available = true;
+
+22.db.Restaurants.find({ location: /New York/ });
+22.SELECT * FROM Restaurants WHERE location LIKE '%New York%';
+
+23.db.Restaurants.aggregate([
+  { $group: { _id: null, averageRating: { $avg: "$average_rating" } } }
+]);
+23.SELECT AVG(average_rating) AS averageRating FROM Restaurants;
+
+24.db.Restaurants.find({}).sort({ average_rating: -1 }).limit(5);
+24.SELECT * FROM Restaurants ORDER BY average_rating DESC LIMIT 5;
+
+25.db.Restaurants.deleteOne({ id: 3 });
+25.DELETE FROM Restaurants WHERE id = 3;
+
+26.CREATE TABLE Rides (
+    id INT PRIMARY KEY,
+    driver_id INT,
+    passenger_id INT,
+    start_location VARCHAR(255),
+    end_location VARCHAR(255),
+    distance DECIMAL(5,2),
+    ride_time DECIMAL(5,2),
+    fare DECIMAL(6,2)
+);
+26.db.createCollection("Rides")
+
+27.INSERT INTO Rides (id, driver_id, passenger_id, start_location, end_location, distance, ride_time, fare)
+VALUES
+  (1, 1, 1, 'Delhi', 'Goa', 10.5, 25,75.50),
+  (2, 2, 2, 'Delhi', 'Goa', 8.2, 20, 72.70),
+  (3, 3, 3, 'Delhi', 'Goa', 5.3, 15, 80.90),
+  (4, 4, 4, 'Delhi', 'Goa', 12.1, 30, 89.25),
+  (5, 5, 5, 'Delhi', 'Goa', 6.8, 18, 91.50);
+
+27.db.Rides.insertMany([
+  {
+    "driver_id": ObjectId(),
+    "passenger_id": ObjectId(),
+    "start_location": "Delhi",
+    "end_location": "Goa",
+    "distance": 10.5,
+    "ride_time": 35,
+    "fare": 75.50
+  },
+  {
+    "driver_id": ObjectId(),
+    "passenger_id": ObjectId(),
+    "start_location": "Delhi",
+    "end_location": "Goa",
+    "distance": 8.2,
+    "ride_time": 70,
+    "fare": 82.75
+  },
+  {
+    "driver_id": ObjectId(),
+    "passenger_id": ObjectId(),
+    "start_location": "Delhi",
+    "end_location": "Goa",
+    "distance": 5.3,
+    "ride_time": 55,
+    "fare": 81.90
+  },
+  {
+    "driver_id": ObjectId(),
+    "passenger_id": ObjectId(),
+    "start_location": "Delhi",
+    "end_location": "Goa",
+    "distance": 12.1,
+    "ride_time": 50,
+    "fare": 88.25
+  },
+  {
+    "driver_id": ObjectId(),
+    "passenger_id": ObjectId(),
+    "start_location": "Delhi",
+    "end_location": "Goa",
+    "distance": 6.8,
+    "ride_time": 42,
+    "fare": 91.50
+  }
+]);
+
+28.SELECT * FROM Rides ORDER BY fare DESC;
+28.db.Rides.find({}).sort({ fare: -1 });
+
+29.SELECT SUM(distance) AS totalDistance, SUM(fare) AS totalFare FROM Rides;
+29.db.Rides.aggregate([{ $group: { _id: null, totalDistance: { $sum: "$distance" }, totalFare: { $sum: "$fare" } } }]);
+
+30.SELECT AVG(ride_time) AS averageRideTime FROM Rides;
+30.db.Rides.aggregate([{ $group: { _id: null, averageRideTime: { $avg: "$ride_time" } } }]);
+
+31.SELECT * FROM Rides WHERE start_location LIKE '%Downtown%' OR end_location LIKE '%Downtown%';
+31.db.Rides.find({ $or: [{ start_location: /Downtown/ }, { end_location: /Downtown/ }] });
+
+32.SELECT COUNT(*) FROM Rides WHERE driver_id = <driver_id>;
+32.db.Rides.countDocuments({ driver_id: ObjectId() });
+
+33.UPDATE Rides SET fare = 20.50 WHERE id = 4;
+33.db.Rides.updateOne({ id: 4 }, { $set: { fare: 20.50 } });
+
+34.SELECT driver_id, SUM(fare) AS totalFare FROM Rides GROUP BY driver_id;
+34.db.Rides.aggregate([{ $group: { _id: "$driver_id", totalFare: { $sum: "$fare" } } }]);
+
+35.DELETE FROM Rides WHERE id = 2;
+35.db.Rides.deleteOne({ id: 2 });
+
+
